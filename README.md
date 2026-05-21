@@ -134,11 +134,17 @@ npm pkg set scripts.preview="vite preview"
 
 ---
 
-## フルコマンド
+## シェルスクリプト
 
 ```bash
-npm init -y
+bash setup.sh
+```
 
+---
+
+## 一括コマンド
+
+```bash
 npm i -D vite tailwindcss @tailwindcss/vite vite-plugin-handlebars fast-glob
 npm i alpinejs
 
