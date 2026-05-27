@@ -2,7 +2,7 @@
 
 set -e
 
-npm init -y
+printf '{}\n' > package.json
 npm i -D vite tailwindcss @tailwindcss/vite vite-plugin-handlebars fast-glob
 npm i alpinejs lucide swiper gsap
 
