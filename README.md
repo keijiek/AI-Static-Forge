@@ -1,17 +1,25 @@
 # 使い方
 
+## プロジェクト概要
+
+- AI による静的サイト制作を前提としたテンプレートです。
+- vite + tailwindcss v4 + alpinejs を基本構成とします。
+- HTML を中心としたマルチページ構成が可能です。
+- 共通パーツは handlebars partials 化します。
+
 ## 前提
 
 実行環境として次のいずれかを想定している。
 
 - シェル
   - windows の git-bash
-  - wsl の ubuntu
-- node がインストール済み
+  - windows の wsl の ubuntu
+- node LTS版がインストール済みであること
 
-## コマンド
+## ひな形作成のコマンド
 
-次のコマンドでひな形作成を行う。
+下記のコマンドでひな形作成を行う。
+ただし、事前に `cd` を使って、カレントディレクトリをこのプロジェクトルートに合わせておくこと。
 
 ```bash
 bash setup.sh
@@ -25,175 +33,101 @@ rm setup.sh
 
 ---
 
-## パッケージのインストール
+## npm の解説
+
+### npm i と node_modules と package.json
+
+- `package.json` があるディレクトリで `npm i` コマンドを実行すると、`package.json` の `devDependencies` と `dependencies` の情報をもとに、node_modules ディレクトリにパッケージ群がインストールされる。
 
 ```bash
-npm i -D vite tailwindcss @tailwindcss/vite vite-plugin-handlebars fast-glob
-npm i alpinejs swiper gsap lucide
+npm i
+# i は install のエイリアス
 ```
 
-### swiper
-
-カルーセルを簡単に作るためのパッケージ。
-
-- [公式サイト](https://swiperjs.com/)
-- [公式->デモ](https://swiperjs.com/demos)
-
-### lucide
-
-多数のアイコンを簡単に導入できるパッケージ。
-lucideIcons.js などで createIcon
-
-
-## ファイル・ディレクトリ作成
-
-### vite.config.js
+- node_modules ディレクトリを削除しても、 package.json があれば、何度でも `npm i` で元に戻せる。 node_modules の容量は数十～数百メガにもなるため、開発をしない間は node_modules だけ削除しておくのがよい。
 
 ```bash
-cat <<'EOF' > ./vite.config.js
-import { defineConfig } from 'vite'
-import tailwindcss from '@tailwindcss/vite'
-import { resolve } from 'path'
-import fg from 'fast-glob'
-import handlebars from 'vite-plugin-handlebars'
-
-const htmlFiles = fg.sync(['*.html', '**/*.html'], {
-  ignore: ['dist/**', 'node_modules/**'],
-})
-
-const input = Object.fromEntries(
-  htmlFiles.map((file) => [
-    file.replace(/\.html$/, ''),
-    resolve(__dirname, file),
-  ])
-)
-
-export default defineConfig({
-  plugins: [
-    tailwindcss(),
-    handlebars({
-      partialDirectory: resolve(__dirname, './src/partials'),
-    }),
-  ],
-  build: {
-    rollupOptions: {
-      input,
-    },
-  },
-  resolve: {
-    alias: {
-      '@': resolve(__dirname, './src'),
-    },
-  },
-})
-EOF
+rm -rf node_modules
+# -rf はディレクトリとその内部を削除するために必須の引数。再帰的かつ強制の意。
 ```
 
-### src/js ディレクトリ作成
+### npm i / npm i -D (パッケージ追加)
+
+次のように新しいパッケージをインストールできる。インストールの対象となるパッケージの正確なパッケージ名は、パッケージの公式サイトや、[npmjs.com](https://www.npmjs.com/) で調べる必要がある。
 
 ```bash
-mkdir -p ./src/js/{swiper,lucide,alpinejs,gsap}
+npm i -D パッケージ名
+npm i パッケージ名
 ```
 
-### src/js/app.js 作成
+使用例は次の通り。
 
 ```bash
-cat <<'EOF' > ./src/js/app.js
-import "../css/app.css";
-import Alpine from "alpinejs";
-
-window.Alpine = Alpine;
-Alpine.start();
-EOF
+# vite と tailwindcss と @tailwindcss/vite をインストール
+npm i -D vite tailwindcss @tailwindcss/vite 
+# alpinejs をインストール
+npm i alpinejs
 ```
 
-### src/css ディレクトリ作成
+- `npm i -D` でインストールすると、開発用のパッケージと見なされ、`package.json` の `devDependencies` に登録される。
+- `npm i` でインストールすると、本番での実行に必要なパッケージと見なされ、`dependencies` に登録される。本番環境において、本番環境用パッケージだけをインストールする用途のため、この分類があると言ってよい。例えば、Express などのサーバーサイドのプログラムを動かすものが該当する。
+
+※今回のように、vite を使って、必要な全てのパッケージを静的ファイルにバンドルする用途では、実質的な違いは小さい。そのため、開発用テンプレートとしては、すべて `npm i -D` として扱っても大きな問題は起こりにくい。
+
+### npm run dev (開発サーバー)
+
+開発サーバーを立てるコマンド。
 
 ```bash
-mkdir -p ./src/css
+npm run dev
 ```
 
-### src/css/app.css 作成
+指定された [localhost:5173](http://localhost:5173/) などのURLを、ウェブブラウザで確認しながら開発するためのもの。
+ソースコードに変更があったら、自動的にブラウザ上の表示が変わるため、F5キーなどで読み込む必要はない。
+
+### npm run host
 
 ```bash
-printf '@import "tailwindcss";\n' > ./src/css/app.css
+npm run host
 ```
 
-### partials 作成
+おなじ wi-fi につながる他の端末から閲覧するための機能.
+
+### npm run build (ビルド)
+
+エントリーポイントを起点に、依存対象の全てが、`dist` ディレクトリ内にビルドされる。
+
+#### dist の中身が完成品
+
+ビルドの結果、dist 内に現れるファイル群は、公開ファイルの全てである。dist 直下を、そのままのディレクトリ構造で本番環境へアップロードして用いることができる。
+
+#### dist は何度でも作れる
+
+npm run build を実行すれば、何度でも dist ディレクトリはビルドされます。必要がなければ dist を削除しても問題はありません。
+
+### エントリーポイント
+
+npm run dev や npm run build で、vite が動くが、処理の起点となる「エントリーポイント」が必ず存在する。
+
+このプロジェクトでは、dist や node_modules を除く html ファイル群が、vite.config.js の設定によってエントリーポイントとして扱われる。
+
+エントリーポイントが import / 参照した js・css・画像・フォント等は、依存対象としてビルドに巻き込まれる。
+
+エントリーポイントが読み込んだファイルは、依存対象としてビルドに巻き込まれる。また、その依存対象が読み込んだファイルも、連鎖してビルドに巻き込まれる。幾重にも依存対象の読み込みが無くなるまで連鎖が続く。
+
+### import について
+
+js ファイル内で `import` されたファイルは、vite によって依存対象として認識される。
+
+例えば、次のディレクトリ構造のとき、app.js で、下記のように記述することで、依存先として指定することになる。
+
+- src/
+  - js/
+    - app.js : import する側
+    - swiper/
+      - topHeroSwiper.js : import される側
+    - alpine.
 
 ```bash
-mkdir -p ./src/partials
-```
-
-### head.hbs, header.hbs, footer.hbs 作成
-
-```bash
-cat <<'EOF' > ./src/partials/header.hbs
-<header></header>
-EOF
-
-cat <<'EOF' > ./src/partials/footer.hbs
-<footer></footer>
-EOF
-
-cat <<'EOF' > ./src/partials/head.hbs
-<meta charset="UTF-8" />
-<meta name="viewport" content="width=device-width, initial-scale=1.0" />
-<script type="module" src="/src/js/app.js"></script>
-<title>vite_tailwind_alpine</title>
-EOF
-```
-
-### index.html 作成
-
-```bash
-cat <<'EOF' > ./index.html
-<!doctype html>
-<html lang="ja">
-  <head>
-    {{> head}}
-  </head>
-  <body>
-    {{> header}}
-    <main>this is index</main>
-    {{> footer}}
-  </body>
-</html>
-EOF
-```
-
-### second.html 作成
-
-```bash
-cat <<'EOF' > ./second.html
-<!doctype html>
-<html lang="ja">
-  <head>
-    {{> head}}
-  </head>
-  <body>
-    {{> header}}
-    <main>this is second page</main>
-    {{> footer}}
-  </body>
-</html>
-EOF
-```
-
-### package.json に script を追加
-
-```bash
-npm pkg set scripts.dev="vite"
-npm pkg set scripts.build="vite build"
-npm pkg set scripts.preview="vite preview"
-```
-
----
-
-## シェルスクリプト(setup.sh)の実行
-
-※setup.sh は、上記までの処理がすべて実行されるスクリプト。下記コマンドで実行。
-
-```bash
-bash setup.sh
+import "./swiper/topHeroSwiper.js";
 ```

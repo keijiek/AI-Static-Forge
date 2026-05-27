@@ -78,6 +78,19 @@ createIcons({
 EOF
 
 printf '@import "tailwindcss";\n' > ./src/css/app.css
+cat <<'EOF' > ./tailwind.config.js
+@import "tailwindcss";
+
+@theme{
+  --font-base : "Helvetica Neue",
+    Arial,
+    "Hiragino Kaku Gothic ProN",
+    "Hiragino Sans",
+    "Noto Sans JP",
+    sans-serif;
+
+}
+EOF
 
 cat <<'EOF' > ./partials/header.hbs
 <header></header>

@@ -89,3 +89,15 @@ updated: 2026-05-27
   - package.json
   - package-lock.json
   - vite.config.js
+
+## 色
+
+- 使用する色は、tailwindcss のパレットから選ぶ。
+- 多用する色は、 src/css/app.css の `@theme {}` の中に、次の例ように記述して用いよ。
+
+```css
+@theme {
+  --color-theme: oklch(75% 0.183 55.934); /* orange-400 */
+  -color-inc: oklch(12.9% 0.042 264.695); /* slate-950 = 文字色 */
+  ...
+}
