@@ -1,4 +1,29 @@
-# ai-static-forge/setup.sh で行っていること
+# 使い方
+
+## 前提
+
+実行環境として次のいずれかを想定している。
+
+- シェル
+  - windows の git-bash
+  - wsl の ubuntu
+- node がインストール済み
+
+## コマンド
+
+次のコマンドでひな形作成を行う。
+
+```bash
+bash setup.sh
+```
+
+※上記コマンドの実行後 setup.sh は削除可。コマンドは次。
+
+```bash
+rm setup.sh
+```
+
+---
 
 ## パッケージのインストール
 
